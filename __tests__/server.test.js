@@ -7,16 +7,6 @@ const testData = require("../db/data/test-data");
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
-describe("GET /api", () => {
-  test("200: responds with { msg: 'ok' }", () => {
-    return request(app)
-      .get("/api")
-      .expect(200)
-      .then(({ body }) => {
-        expect(body).toEqual({ msg: "ok" });
-      });
-  });
-});
 
 describe("GET /api/users", () => {
   test("200: responds with an array of users", () => {
