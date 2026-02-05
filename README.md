@@ -3,7 +3,7 @@
 ## 🔗 Hosted Version
 
 **Live API:**
-[https://databases-ty2f.onrender.com](https://databases-ty2f.onrender.com)
+[https://databases-ty2f.onrender.com](https://databases-ty2f.onrender.com/api/articles)
 
 ---
 
