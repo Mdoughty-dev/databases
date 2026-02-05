@@ -5,6 +5,8 @@ const app = express();
 
 app.use(express.json());
 
+app.use("/api", express.static("public"));
+
 app.use("/api", apiRouter);
 
 app.all(/.*/, (req, res) => {
@@ -19,3 +21,4 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
