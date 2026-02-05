@@ -1,4 +1,264 @@
-<body>
-	<h1>NC NEWS API</h1>
-	<p>Welcome to the NC News API Documentation</p>
-</body>
+<!-- public/index.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NC News API – Documentation</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container">
+        <h1>NC News API</h1>
+        <p class="subtitle">API Documentation</p>
+
+        <div class="pill-row">
+          <span class="pill">Base URL: <code>/api</code></span>
+          <span class="pill">Format: JSON (except <code>GET /api</code> → HTML)</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="section" id="overview">
+        <h2>Overview</h2>
+        <p>
+          This API exposes endpoints for articles, comments, topics, and users.
+          The <code>GET /api</code> route serves this documentation page (static HTML)
+          using <code>express.static()</code>.
+        </p>
+      </section>
+
+      <section class="section" id="docs">
+        <h2>API Documentation</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api</code>
+          </div>
+          <p class="desc">
+            Serves this API documentation page (static HTML). Acts as the View layer in MVC.
+          </p>
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Content-Type:</strong> text/html</div>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="section" id="articles">
+        <h2>Articles</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api/articles</code>
+          </div>
+          <p class="desc">Fetch a list of all articles (may support sorting/filtering via queries).</p>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Body:</strong></div>
+            </div>
+            <pre><code>{
+  "articles": [
+    {
+      "article_id": 1,
+      "title": "Running a Node App",
+      "topic": "coding",
+      "author": "jessjelly",
+      "created_at": "2020-11-07T00:00:00.000Z",
+      "votes": 0
+    }
+  ]
+}</code></pre>
+          </details>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api/articles/:article_id</code>
+          </div>
+          <p class="desc">Fetch a single article by ID (often includes <code>comment_count</code>).</p>
+
+          <details>
+            <summary>Errors</summary>
+            <ul>
+              <li><code>400 Bad Request</code> — invalid <code>article_id</code></li>
+              <li><code>404 Not Found</code> — article does not exist</li>
+            </ul>
+          </details>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method patch">PATCH</span>
+            <code class="path">/api/articles/:article_id</code>
+          </div>
+          <p class="desc">Update an article (commonly votes) using <code>inc_votes</code>.</p>
+
+          <details>
+            <summary>Request body</summary>
+            <pre><code>{
+  "inc_votes": 1
+}</code></pre>
+          </details>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Body:</strong> <code>{ "article": { ... } }</code></div>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="section" id="article-comments">
+        <h2>Article Comments</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api/articles/:article_id/comments</code>
+          </div>
+          <p class="desc">Fetch all comments for a given article.</p>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Body:</strong> <code>{ "comments": [ ... ] }</code></div>
+            </div>
+          </details>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method post">POST</span>
+            <code class="path">/api/articles/:article_id/comments</code>
+          </div>
+          <p class="desc">Add a new comment to an article.</p>
+
+          <details>
+            <summary>Request body</summary>
+            <pre><code>{
+  "username": "butter_bridge",
+  "body": "Nice article!"
+}</code></pre>
+          </details>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 201 Created</div>
+              <div><strong>Body:</strong> <code>{ "comment": { ... } }</code></div>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="section" id="comments">
+        <h2>Comments</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api/comments</code>
+          </div>
+          <p class="desc">
+            Fetch all comments. (Often used for debugging/testing if implemented.)
+          </p>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method del">DELETE</span>
+            <code class="path">/api/comments/:comment_id</code>
+          </div>
+          <p class="desc">Delete a comment by ID.</p>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 204 No Content</div>
+              <div><strong>Body:</strong> none</div>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="section" id="topics">
+        <h2>Topics</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api/topics</code>
+          </div>
+          <p class="desc">Fetch all topics.</p>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Body:</strong> <code>{ "topics": [ ... ] }</code></div>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="section" id="users">
+        <h2>Users</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method get">GET</span>
+            <code class="path">/api/users</code>
+          </div>
+          <p class="desc">Fetch all users.</p>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Body:</strong> <code>{ "users": [ ... ] }</code></div>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="section" id="errors">
+        <h2>Errors</h2>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method any">ALL</span>
+            <code class="path">/*</code>
+          </div>
+          <p class="desc">Any unrecognised endpoint returns:</p>
+          <pre><code>{
+  "msg": "Not found"
+}</code></pre>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <p>
+          Tip: Keep this page in <code>public/index.html</code> and serve it with
+          <code>app.use("/api", express.static("public"))</code>.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
+
