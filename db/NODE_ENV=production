@@ -1,0 +1,5 @@
+
+> be-nc-news@1.0.0 seed
+> node ./db/seeds/run-seed.js
+
+seeding complete
