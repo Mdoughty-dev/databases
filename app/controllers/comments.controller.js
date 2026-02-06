@@ -2,6 +2,7 @@ const {
   getCommentsByArticleId,
   addCommentToArticle,
   removeCommentById,
+  patchCommentVotesById
 } = require("../services/comments.service");
 
 const { createHttpError } = require("../utils/errors");
@@ -33,6 +34,20 @@ exports.postCommentByArticleId = (req, res, next) => {
     })
     .catch(next);
 };
+exports.patchCommentById = (req, res, next) => 
+{
+	const {comment_id} = req.params;
+	const {inc_votes} = req.body;
+	if (isNaN(comment_id)) return next(createHttpError(400));
+  if (!Number.isInteger(inc_votes)) return next(createHttpError(400));
+
+  patchCommentVotesById(comment_id, inc_votes)
+    .then((comment) => {
+      res.status(200).send({ comment });
+    })
+    .catch(next);
+};
+
 
 exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;

@@ -182,6 +182,29 @@
 
         <article class="endpoint">
           <div class="endpoint-head">
+            <span class="method patch">PATCH</span>
+            <code class="path">/api/comments/:comment_id</code>
+          </div>
+          <p class="desc">Update an comment votes using <code>inc_votes</code>.</p>
+
+          <details>
+            <summary>Request body</summary>
+            <pre><code>{
+  "inc_votes": 1
+}</code></pre>
+          </details>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 200 OK</div>
+              <div><strong>Body:</strong> <code>{ "article": { ... } }</code></div>
+            </div>
+          </details>
+        </article>
+ 
+        <article class="endpoint">
+          <div class="endpoint-head">
             <span class="method del">DELETE</span>
             <code class="path">/api/comments/:comment_id</code>
           </div>
