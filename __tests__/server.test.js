@@ -29,7 +29,109 @@ describe("GET /api/users", () => {
       });
   });
 });
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: increments votes by positive inc_votes and responds with updated comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("comment");
+        const { comment } = body;
 
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: 1,
+            votes: expect.any(Number),
+            body: expect.any(String),
+            author: expect.any(String),
+            article_id: expect.any(Number),
+            created_at: expect.any(String),
+          })
+        );
+
+        return request(app)
+          .patch("/api/comments/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(({ body: body2 }) => {
+            expect(body2.comment.votes).toBe(comment.votes + 1);
+          });
+      });
+  });
+
+  test("200: decrements votes by negative inc_votes", () => {
+    return request(app)
+      .patch("/api/comments/2")
+      .send({ inc_votes: -1 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toHaveProperty("comment_id", 2);
+        expect(body.comment.votes).toEqual(expect.any(Number));
+      });
+  });
+
+  test("200: ignores extra properties on the request body", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 1, bananas: "nope" })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment.comment_id).toBe(1);
+        expect(body.comment.votes).toEqual(expect.any(Number));
+      });
+  });
+
+  test("400: invalid comment_id (not a number)", () => {
+    return request(app)
+      .patch("/api/comments/not-a-number")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("404: valid comment_id but comment does not exist", () => {
+    return request(app)
+      .patch("/api/comments/999999")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+
+  test("400: missing inc_votes in body", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("400: inc_votes is the wrong type (string)", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: "1" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("400: inc_votes is NaN / invalid number", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: Number("nope") })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
 describe("GET /api/topics", () => {
   test("200: responds with an array of topics", () => {
     return request(app)
@@ -184,7 +286,7 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/999999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
+        expect(body.msg).toBe("Not found");
       });
   });
 });
@@ -252,12 +354,12 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
     });
   });
 
-  test("404: responds with 'Article not found' when article_id does not exist", () => {
+  test("404: responds with 'Not found' when article_id does not exist", () => {
     return request(app)
       .get("/api/articles/999999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
+        expect(body.msg).toBe("Not found");
       });
   });
 
@@ -286,7 +388,7 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
       .get("/api/articles/999999/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
+        expect(body.msg).toBe("Not found");
       });
   });
 });
@@ -339,7 +441,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send({ username: "butter_bridge", body: "hello" })
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
+        expect(body.msg).toBe("Not found");
       });
   });
 });
@@ -407,7 +509,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .send({ inc_votes: 1 })
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
+        expect(body.msg).toBe("Not found");
       });
   });
 });
