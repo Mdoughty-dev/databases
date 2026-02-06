@@ -135,18 +135,19 @@ const seed = (devData) => {
     })
     .then(() => {
       return db.query(`
-	      CREATE TABLE articles(
-	      article_id SERIAL PRIMARY KEY, 
-	      title VARCHAR(100),
-	      topic VARCHAR REFERENCES topics(slug), 
-	      author VARCHAR REFERENCES users(username), 
-	      body TEXT, 
-	      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-	      votes INT DEFAULT 0, 
-	      article_img_url VARCHAR(1000)
-	      );
-	      `);
+    CREATE TABLE articles(
+      article_id SERIAL PRIMARY KEY,
+      title VARCHAR(100),
+      topic VARCHAR REFERENCES topics(slug),
+      author VARCHAR REFERENCES users(username),
+      body TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      votes INT DEFAULT 0,
+      article_img_url VARCHAR(1000) DEFAULT 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'
+    );
+  `);
     })
+
     .then(() => {
       return db.query(`
 	      CREATE TABLE comments(

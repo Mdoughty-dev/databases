@@ -7,4 +7,3 @@ exports.getUsers = (req, res, next) => {
     })
     .catch(next);
 };
-

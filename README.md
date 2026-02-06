@@ -14,11 +14,11 @@ It provides structured access to news platform data including **topics, users, a
 
 This project demonstrates:
 
-* MVC-style separation of concerns
-* PostgreSQL querying using `pg`
-* Query validation and error handling
-* Environment-based configuration
-* Full test coverage using **Jest** and **Supertest**
+- MVC-style separation of concerns
+- PostgreSQL querying using `pg`
+- Query validation and error handling
+- Environment-based configuration
+- Full test coverage using **Jest** and **Supertest**
 
 The API is designed to be consumed by a front-end application.
 
@@ -26,13 +26,13 @@ The API is designed to be consumed by a front-end application.
 
 ## 🛠️ Tech Stack
 
-* Node.js
-* Express
-* PostgreSQL
-* pg
-* Jest
-* Supertest
-* dotenv
+- Node.js
+- Express
+- PostgreSQL
+- pg
+- Jest
+- Supertest
+- dotenv
 
 ---
 
@@ -46,14 +46,14 @@ GET /api
 
 Core endpoints include:
 
-* `GET /api/topics`
-* `GET /api/users`
-* `GET /api/articles`
-* `GET /api/articles/:article_id`
-* `PATCH /api/articles/:article_id`
-* `GET /api/articles/:article_id/comments`
-* `POST /api/articles/:article_id/comments`
-* `DELETE /api/comments/:comment_id`
+- `GET /api/topics`
+- `GET /api/users`
+- `GET /api/articles`
+- `GET /api/articles/:article_id`
+- `PATCH /api/articles/:article_id`
+- `GET /api/articles/:article_id/comments`
+- `POST /api/articles/:article_id/comments`
+- `DELETE /api/comments/:comment_id`
 
 ---
 
@@ -170,15 +170,14 @@ http://localhost:9090
 
 ## 🧠 Design Notes
 
-* Follows an MVC-style architecture
-* Uses parameterised SQL queries to prevent SQL injection
-* Centralised error handling with Express middleware
-* Separate environments for development, testing, and production
-* Queries are validated to ensure predictable API behaviour
+- Follows an MVC-style architecture
+- Uses parameterised SQL queries to prevent SQL injection
+- Centralised error handling with Express middleware
+- Separate environments for development, testing, and production
+- Queries are validated to ensure predictable API behaviour
 
 ---
 
 ## 👤 Author
 
 **Matthew Doughty**
-

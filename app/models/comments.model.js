@@ -5,20 +5,24 @@ exports.selectComments = () => {
 };
 
 exports.selectCommentsByArticleId = (article_id) => {
-  return db.query(
-    `
+  return db
+    .query(
+      `
     SELECT comment_id, votes, created_at, author, body, article_id
     FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC;
     `,
-    [article_id]
-  ).then(({ rows }) => rows);
+      [article_id],
+    )
+    .then(({ rows }) => rows);
 };
 
 exports.deleteCommentByCommentId = (commentId) => {
   return db
-    .query("DELETE FROM comments WHERE comment_id = $1 RETURNING *;", [commentId])
+    .query("DELETE FROM comments WHERE comment_id = $1 RETURNING *;", [
+      commentId,
+    ])
     .then(({ rows }) => rows[0] || null);
 };
 
@@ -30,7 +34,7 @@ exports.insertCommentByArticleId = (articleId, username, body) => {
       VALUES ($1, $2, $3)
       RETURNING *;
       `,
-      [username, body, articleId]
+      [username, body, articleId],
     )
     .then(({ rows }) => rows[0]);
 };
@@ -43,8 +47,7 @@ exports.updateCommentVotesById = (commentId, inc_votes) => {
       WHERE comment_id = $2
       RETURNING *;
       `,
-      [inc_votes, commentId]
+      [inc_votes, commentId],
     )
     .then(({ rows }) => rows[0] || null);
 };
-

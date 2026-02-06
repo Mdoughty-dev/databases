@@ -2,7 +2,7 @@ const {
   selectCommentsByArticleId,
   deleteCommentByCommentId,
   insertCommentByArticleId,
-  updateCommentVotesById
+  updateCommentVotesById,
 } = require("../models/comments.model");
 
 const { articleExistsById } = require("../models/articles.model");
@@ -18,7 +18,7 @@ exports.getCommentsByArticleId = (articleId) => {
 exports.removeCommentById = (commentId) => {
   return deleteCommentByCommentId(commentId).then((deleted) => {
     if (!deleted) return Promise.reject(createHttpError(404));
-    return; 
+    return;
   });
 };
 
@@ -35,4 +35,3 @@ exports.patchCommentVotesById = (commentId, inc_votes) => {
     return comment;
   });
 };
-

@@ -16,7 +16,9 @@
 
         <div class="pill-row">
           <span class="pill">Base URL: <code>/api</code></span>
-          <span class="pill">Format: JSON (except <code>GET /api</code> → HTML)</span>
+          <span class="pill"
+            >Format: JSON (except <code>GET /api</code> → HTML)</span
+          >
         </div>
       </div>
     </header>
@@ -26,8 +28,8 @@
         <h2>Overview</h2>
         <p>
           This API exposes endpoints for articles, comments, topics, and users.
-          The <code>GET /api</code> route serves this documentation page (static HTML)
-          using <code>express.static()</code>.
+          The <code>GET /api</code> route serves this documentation page (static
+          HTML) using <code>express.static()</code>.
         </p>
       </section>
 
@@ -40,7 +42,8 @@
             <code class="path">/api</code>
           </div>
           <p class="desc">
-            Serves this API documentation page (static HTML). Acts as the View layer in MVC.
+            Serves this API documentation page (static HTML). Acts as the View
+            layer in MVC.
           </p>
           <details>
             <summary>Response</summary>
@@ -60,7 +63,10 @@
             <span class="method get">GET</span>
             <code class="path">/api/articles</code>
           </div>
-          <p class="desc">Fetch a list of all articles (may support sorting/filtering via queries).</p>
+          <p class="desc">
+            Fetch a list of all articles (may support sorting/filtering via
+            queries).
+          </p>
 
           <details>
             <summary>Response</summary>
@@ -88,12 +94,17 @@
             <span class="method get">GET</span>
             <code class="path">/api/articles/:article_id</code>
           </div>
-          <p class="desc">Fetch a single article by ID (often includes <code>comment_count</code>).</p>
+          <p class="desc">
+            Fetch a single article by ID (often includes
+            <code>comment_count</code>).
+          </p>
 
           <details>
             <summary>Errors</summary>
             <ul>
-              <li><code>400 Bad Request</code> — invalid <code>article_id</code></li>
+              <li>
+                <code>400 Bad Request</code> — invalid <code>article_id</code>
+              </li>
               <li><code>404 Not Found</code> — article does not exist</li>
             </ul>
           </details>
@@ -104,7 +115,9 @@
             <span class="method patch">PATCH</span>
             <code class="path">/api/articles/:article_id</code>
           </div>
-          <p class="desc">Update an article (commonly votes) using <code>inc_votes</code>.</p>
+          <p class="desc">
+            Update an article (commonly votes) using <code>inc_votes</code>.
+          </p>
 
           <details>
             <summary>Request body</summary>
@@ -117,7 +130,38 @@
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
-              <div><strong>Body:</strong> <code>{ "article": { ... } }</code></div>
+              <div>
+                <strong>Body:</strong> <code>{ "article": { ... } }</code>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method post">POST</span>
+            <code class="path">/api/articles/</code>
+          </div>
+          <p class="desc">Will post a new article</p>
+
+          <details>
+            <summary>Request body</summary>
+            <pre><code>{
+    author : "authorName"
+    title: "Article title"
+    body: "Article body"
+    topic "Topic"
+    article_img_url - "will default if not provided""
+}</code></pre>
+          </details>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 201 Created</div>
+              <div>
+                <strong>Body:</strong> <code>{ "comment": { ... } }</code>
+              </div>
             </div>
           </details>
         </article>
@@ -137,7 +181,9 @@
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
-              <div><strong>Body:</strong> <code>{ "comments": [ ... ] }</code></div>
+              <div>
+                <strong>Body:</strong> <code>{ "comments": [ ... ] }</code>
+              </div>
             </div>
           </details>
         </article>
@@ -161,7 +207,9 @@
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 201 Created</div>
-              <div><strong>Body:</strong> <code>{ "comment": { ... } }</code></div>
+              <div>
+                <strong>Body:</strong> <code>{ "comment": { ... } }</code>
+              </div>
             </div>
           </details>
         </article>
@@ -176,7 +224,8 @@
             <code class="path">/api/comments</code>
           </div>
           <p class="desc">
-            Fetch all comments. (Often used for debugging/testing if implemented.)
+            Fetch all comments. (Often used for debugging/testing if
+            implemented.)
           </p>
         </article>
 
@@ -185,7 +234,9 @@
             <span class="method patch">PATCH</span>
             <code class="path">/api/comments/:comment_id</code>
           </div>
-          <p class="desc">Update an comment votes using <code>inc_votes</code>.</p>
+          <p class="desc">
+            Update an comment votes using <code>inc_votes</code>.
+          </p>
 
           <details>
             <summary>Request body</summary>
@@ -198,11 +249,13 @@
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
-              <div><strong>Body:</strong> <code>{ "article": { ... } }</code></div>
+              <div>
+                <strong>Body:</strong> <code>{ "article": { ... } }</code>
+              </div>
             </div>
           </details>
         </article>
- 
+
         <article class="endpoint">
           <div class="endpoint-head">
             <span class="method del">DELETE</span>
@@ -234,7 +287,9 @@
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
-              <div><strong>Body:</strong> <code>{ "topics": [ ... ] }</code></div>
+              <div>
+                <strong>Body:</strong> <code>{ "topics": [ ... ] }</code>
+              </div>
             </div>
           </details>
         </article>
@@ -254,7 +309,9 @@
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
-              <div><strong>Body:</strong> <code>{ "users": [ ... ] }</code></div>
+              <div>
+                <strong>Body:</strong> <code>{ "users": [ ... ] }</code>
+              </div>
             </div>
           </details>
         </article>
@@ -276,11 +333,8 @@
       </section>
 
       <footer class="footer">
-        <p>
-          Created by Matthew Doughty :)
-        </p>
+        <p>Created by Matthew Doughty :)</p>
       </footer>
     </main>
   </body>
 </html>
-
