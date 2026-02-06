@@ -1,9 +1,10 @@
-const { selectTopics } = require("../models/topics.model");
+const { getTopics } = require("../services/topics.service");
 
 exports.getTopics = (req, res, next) => {
-  selectTopics()
+  getTopics()
     .then((topics) => {
       res.status(200).send({ topics });
     })
     .catch(next);
 };
+

@@ -1,9 +1,10 @@
-const { selectUsers } = require("../models/users.model");
+const { getUsers } = require("../services/users.service");
 
 exports.getUsers = (req, res, next) => {
-  selectUsers()
+  getUsers()
     .then((users) => {
       res.status(200).send({ users });
     })
     .catch(next);
 };
+

@@ -1,49 +1,48 @@
 const {
-  selectComments,
-  selectCommentsByArticleId,
-  insertCommentByArticleId,
-  deleteCommentByCommentId,
-} = require("../models/comments.model");
+  getCommentsByArticleId,
+  addCommentToArticle,
+  removeCommentById,
+} = require("../services/comments.service");
 
-exports.getComments = (req, res, next) => {
-  selectComments()
-    .then((comments) => {
-      res.status(200).send({ comments });
-    })
-    .catch(next);
-};
+const { createHttpError } = require("../utils/errors");
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  if (isNaN(article_id)) {
-    return res.status(400).send({ msg: "Bad request" });
-  }
-  selectCommentsByArticleId(article_id)
+
+  if (isNaN(article_id)) return next(createHttpError(400));
+
+  getCommentsByArticleId(article_id)
     .then((comments) => {
       res.status(200).send({ comments });
     })
     .catch(next);
 };
-exports.deleteComment = (req, res, next) => {
-  const { comment_id } = req.params;
-  if (isNaN(comment_id)) {
-    return res.status(400).send({ msg: "Bad request" });
-  }
-  deleteCommentByCommentId(comment_id)
-    .then(() => {
-      return res.status(204).send();
-    })
-    .catch(next);
-};
+
 exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
-  if (isNaN(article_id) || !username || !body) {
-    return res.status(400).send({ msg: "Bad request" });
+
+  if (isNaN(article_id)) return next(createHttpError(400));
+  if (!username || typeof body !== "string") {
+    return next(createHttpError(400));
   }
-  insertCommentByArticleId(article_id, username, body)
+
+  addCommentToArticle(article_id, username, body)
     .then((comment) => {
-      return res.status(201).send({ comment });
+      res.status(201).send({ comment });
     })
     .catch(next);
 };
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  if (isNaN(comment_id)) return next(createHttpError(400));
+
+  removeCommentById(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(next);
+};
+

@@ -1,12 +1,15 @@
 const {
-  selectArticles,
-  selectArticleById,
-  updateArticleVotesById,
-} = require("../models/articles.model");
+  getArticles,
+  getArticleById,
+  patchArticleVotesById,
+} = require("../services/articles.service");
+
+const { createHttpError } = require("../utils/errors");
 
 exports.getArticles = (req, res, next) => {
   const { sort_by, order, topic } = req.query;
-  selectArticles(sort_by, order, topic)
+
+  getArticles(sort_by, order, topic)
     .then((articles) => {
       res.status(200).send({ articles });
     })
@@ -15,10 +18,10 @@ exports.getArticles = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
-  if (isNaN(article_id)) {
-    return res.status(400).send({ msg: "Bad request" });
-  }
-  selectArticleById(article_id)
+
+  if (isNaN(article_id)) return next(createHttpError(400));
+
+  getArticleById(article_id)
     .then((article) => {
       res.status(200).send({ article });
     })
@@ -28,12 +31,14 @@ exports.getArticleById = (req, res, next) => {
 exports.patchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-  if (isNaN(article_id)) return res.status(400).send({ msg: "Bad request" });
-  if (!Number.isInteger(inc_votes))
-    return res.status(400).send({ msg: "Bad request" });
-  updateArticleVotesById(article_id, inc_votes)
+
+  if (isNaN(article_id)) return next(createHttpError(400));
+  if (!Number.isInteger(inc_votes)) return next(createHttpError(400));
+
+  patchArticleVotesById(article_id, inc_votes)
     .then((article) => {
       res.status(200).send({ article });
     })
     .catch(next);
 };
+
