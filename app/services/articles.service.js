@@ -19,14 +19,25 @@ const validSortBys = new Set([
   "article_img_url",
 ]);
 
-exports.getArticles = (sort_by = "created_at", order = "desc", topic) => {
+exports.getArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  p = 1,
+) => {
   const lowerOrder = (order || "desc").toLowerCase();
 
   if (!validSortBys.has(sort_by)) return Promise.reject(createHttpError(400));
   if (!["asc", "desc"].includes(lowerOrder))
     return Promise.reject(createHttpError(400));
-
-  return selectArticles(sort_by, lowerOrder, topic);
+  const parsedLimit = Number(limit);
+  const parsedP = Number(p);
+  if (!Number.isInteger(parsedLimit) || parsedLimit < 1)
+    return Promise.reject(createHttpError(400));
+  if (!Number.isInteger(parsedP) || parsedP < 1)
+    return Promise.reject(createHttpError(400));
+  return selectArticles(sort_by, lowerOrder, topic, parsedLimit, parsedP);
 };
 
 exports.getArticleById = (articleId) => {

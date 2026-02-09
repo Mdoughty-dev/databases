@@ -205,6 +205,7 @@ describe("GET /api/articles", () => {
         expect(votes).toEqual(sortedVotes);
       });
   });
+
   test("GET /api/articles supports sort_by and order AND will sort in DESC Order", () => {
     return request(app)
       .get("/api/articles?sort_by=topic&order=desc")
@@ -236,17 +237,17 @@ describe("GET /api/articles", () => {
         expect(topics).toEqual(sortedTopics);
       });
   });
-});
-test("GET /api/articles accepts topic query and filters results", () => {
-  return request(app)
-    .get("/api/articles?topic=coding")
-    .expect(200)
-    .then(({ body }) => {
-      expect(body.articles).toBeInstanceOf(Array);
-      body.articles.forEach((article) => {
-        expect(article.topic).toBe("coding");
+  test("GET /api/articles accepts topic query and filters results", () => {
+    return request(app)
+      .get("/api/articles?topic=coding")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeInstanceOf(Array);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("coding");
+        });
       });
-    });
+  });
 });
 
 describe("GET /api/articles/:article_id", () => {
@@ -311,67 +312,67 @@ describe("GET /api/articles/:article_id/comments", () => {
         });
       });
   });
-  describe("GET /api/articles/:article_id (comment_count)", () => {
-    test("200: responds with an article object that includes comment_count", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article).toEqual(
-            expect.objectContaining({
-              article_id: 1,
-              author: expect.any(String),
-              title: expect.any(String),
-              topic: expect.any(String),
-              body: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              article_img_url: expect.any(String),
-              comment_count: expect.any(Number),
-            }),
-          );
-        });
-    });
+});
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("200: responds with an article object that includes comment_count", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            article_id: 1,
+            author: expect.any(String),
+            title: expect.any(String),
+            topic: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          }),
+        );
+      });
+  });
 
-    test("200: comment_count matches the number of comments for that article", () => {
-      const articleId = 1;
+  test("200: comment_count matches the number of comments for that article", () => {
+    const articleId = 1;
 
-      const countComments = db
-        .query(
-          `SELECT COUNT(*)::int AS count FROM comments WHERE article_id = $1;`,
-          [articleId],
-        )
-        .then(({ rows }) => rows[0].count);
+    const countComments = db
+      .query(
+        `SELECT COUNT(*)::int AS count FROM comments WHERE article_id = $1;`,
+        [articleId],
+      )
+      .then(({ rows }) => rows[0].count);
 
-      const getArticle = request(app)
-        .get(`/api/articles/${articleId}`)
-        .expect(200)
-        .then(({ body }) => body.article.comment_count);
+    const getArticle = request(app)
+      .get(`/api/articles/${articleId}`)
+      .expect(200)
+      .then(({ body }) => body.article.comment_count);
 
-      return Promise.all([countComments, getArticle]).then(
-        ([expectedCount, apiCount]) => {
-          expect(apiCount).toBe(expectedCount);
-        },
-      );
-    });
+    return Promise.all([countComments, getArticle]).then(
+      ([expectedCount, apiCount]) => {
+        expect(apiCount).toBe(expectedCount);
+      },
+    );
+  });
 
-    test("404: responds with 'Not found' when article_id does not exist", () => {
-      return request(app)
-        .get("/api/articles/999999")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
-        });
-    });
+  test("404: responds with 'Not found' when article_id does not exist", () => {
+    return request(app)
+      .get("/api/articles/999999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
 
-    test("400: responds with 'Bad request' when article_id is invalid", () => {
-      return request(app)
-        .get("/api/articles/not-an-id")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
+  test("400: responds with 'Bad request' when article_id is invalid", () => {
+    return request(app)
+      .get("/api/articles/not-an-id")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
   });
 
   test("400: invalid article_id", () => {
@@ -442,6 +443,107 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Not found");
+      });
+  });
+  test("200: responds with total_count (ignores limit) and defaults to limit=10, p=1", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeInstanceOf(Array);
+        expect(body.articles.length).toBe(10);
+
+        expect(body.total_count).toBeDefined();
+        expect(typeof body.total_count).toBe("number");
+        expect(body.total_count).toBeGreaterThanOrEqual(body.articles.length);
+      });
+  });
+
+  test("200: accepts limit query and returns that many articles", () => {
+    return request(app)
+      .get("/api/articles?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeInstanceOf(Array);
+        expect(body.articles.length).toBe(5);
+        expect(typeof body.total_count).toBe("number");
+      });
+  });
+
+  test("200: accepts p query (page) and returns next page (no overlap with page 1)", () => {
+    return Promise.all([
+      request(app).get("/api/articles?limit=5&p=1").expect(200),
+      request(app).get("/api/articles?limit=5&p=2").expect(200),
+    ]).then(([res1, res2]) => {
+      const page1Ids = res1.body.articles.map((a) => a.article_id);
+      const page2Ids = res2.body.articles.map((a) => a.article_id);
+
+      expect(page1Ids.length).toBe(5);
+      expect(Array.isArray(page2Ids)).toBe(true);
+
+      page2Ids.forEach((id) => {
+        expect(page1Ids).not.toContain(id);
+      });
+    });
+  });
+
+  test("200: total_count respects topic filter (but still ignores limit)", () => {
+    return db
+      .query(
+        `SELECT COUNT(*)::int AS count FROM articles WHERE topic = 'coding';`,
+      )
+      .then(({ rows }) => {
+        const expectedCount = rows[0].count;
+
+        return request(app)
+          .get("/api/articles?topic=coding&limit=2&p=1")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeInstanceOf(Array);
+            expect(body.articles.length).toBeLessThanOrEqual(2);
+
+            body.articles.forEach((article) => {
+              expect(article.topic).toBe("coding");
+            });
+
+            expect(body.total_count).toBe(expectedCount);
+          });
+      });
+  });
+
+  test("400: invalid limit (not a number)", () => {
+    return request(app)
+      .get("/api/articles?limit=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("400: invalid limit (less than 1)", () => {
+    return request(app)
+      .get("/api/articles?limit=0")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("400: invalid p (not a number)", () => {
+    return request(app)
+      .get("/api/articles?p=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("400: invalid p (less than 1)", () => {
+    return request(app)
+      .get("/api/articles?p=0")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });

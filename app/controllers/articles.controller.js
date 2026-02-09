@@ -8,10 +8,12 @@ const {
 const { createHttpError } = require("../utils/errors");
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query;
+  const { sort_by, order, topic, limit, p } = req.query;
 
-  getArticles(sort_by, order, topic)
-    .then((articles) => res.status(200).send({ articles }))
+  getArticles(sort_by, order, topic, limit, p)
+    .then(({ articles, total_count }) =>
+      res.status(200).send({ articles, total_count }),
+    )
     .catch(next);
 };
 

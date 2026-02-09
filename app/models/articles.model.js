@@ -1,21 +1,52 @@
 const db = require("../../db/connection");
 
-exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
-  const queryValues = [];
-  let sql = `
+exports.selectArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  p = 1,
+) => {
+  const offset = limit * (p - 1);
+
+  const countValues = [];
+  let countSql = `SELECT COUNT(*)::int AS total_count FROM articles`;
+
+  const dataValues = [];
+  let dataSql = `
     SELECT author, title, article_id, topic, created_at, votes, article_img_url
     FROM articles
   `;
 
   if (topic) {
-    queryValues.push(topic);
-    sql += ` WHERE topic = $1`;
+    countValues.push(topic);
+    countSql += ` WHERE topic = $1`;
+
+    dataValues.push(topic);
+    dataSql += ` WHERE topic = $1`;
   }
 
-  sql += ` ORDER BY ${sort_by} ${order}, article_id ${order};`;
+  dataSql += ` ORDER BY ${sort_by} ${order}, article_id ${order}`;
 
-  return db.query(sql, queryValues).then(({ rows }) => rows);
+  if (topic) {
+    dataValues.push(limit, offset);
+    dataSql += ` LIMIT $2 OFFSET $3;`;
+  } else {
+    dataValues.push(limit, offset);
+    dataSql += ` LIMIT $1 OFFSET $2;`;
+  }
+
+  return Promise.all([
+    db.query(countSql, countValues),
+    db.query(dataSql, dataValues),
+  ]).then(([countResult, dataResult]) => {
+    return {
+      total_count: countResult.rows[0].total_count,
+      articles: dataResult.rows,
+    };
+  });
 };
+
 exports.articleExistsById = (articleId) => {
   return db
     .query(`SELECT 1 FROM articles WHERE article_id = $1;`, [articleId])
