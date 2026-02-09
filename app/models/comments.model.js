@@ -4,18 +4,35 @@ exports.selectComments = () => {
   return db.query("SELECT * FROM comments;").then(({ rows }) => rows);
 };
 
-exports.selectCommentsByArticleId = (article_id) => {
-  return db
-    .query(
-      `
+exports.selectCommentsByArticleId = (article_id, limit, p) => {
+  const offset = (p - 1) * limit;
+
+  const commentsQuery = db.query(
+    `
     SELECT comment_id, votes, created_at, author, body, article_id
     FROM comments
     WHERE article_id = $1
-    ORDER BY created_at DESC;
+    ORDER BY created_at DESC
+    LIMIT $2 OFFSET $3;
     `,
-      [article_id],
-    )
-    .then(({ rows }) => rows);
+    [article_id, limit, offset]
+  );
+
+  const countQuery = db.query(
+    `
+    SELECT COUNT(*)::int AS total_count
+    FROM comments
+    WHERE article_id = $1;
+    `,
+    [article_id]
+  );
+
+  return Promise.all([commentsQuery, countQuery]).then(([commentsRes, countRes]) => {
+    return {
+      comments: commentsRes.rows,
+      total_count: countRes.rows[0].total_count,
+    };
+  });
 };
 
 exports.deleteCommentByCommentId = (commentId) => {

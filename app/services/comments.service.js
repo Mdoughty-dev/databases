@@ -8,10 +8,16 @@ const {
 const { articleExistsById } = require("../models/articles.model");
 const { createHttpError } = require("../utils/errors");
 
-exports.getCommentsByArticleId = (articleId) => {
+exports.getCommentsByArticleId = (articleId, limit = 10, p = 1) => {
+  const parsedLimit = Number(limit);
+  const parsedP = Number(p);
+  if (!Number.isInteger(parsedLimit) || parsedLimit < 1)
+    return Promise.reject(createHttpError(400));
+  if (!Number.isInteger(parsedP) || parsedP < 1)
+    return Promise.reject(createHttpError(400));	
   return articleExistsById(articleId).then((exists) => {
     if (!exists) return Promise.reject(createHttpError(404));
-    return selectCommentsByArticleId(articleId);
+    return selectCommentsByArticleId(articleId, parsedLimit, parsedP);
   });
 };
 

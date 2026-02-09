@@ -9,12 +9,13 @@ const { createHttpError } = require("../utils/errors");
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
+	const {limit, p} = req.query
 
   if (isNaN(article_id)) return next(createHttpError(400));
 
-  getCommentsByArticleId(article_id)
-    .then((comments) => {
-      res.status(200).send({ comments });
+  getCommentsByArticleId(article_id, limit, p)
+    .then(({comments, total_count}) => {
+      res.status(200).send({ comments, total_count });
     })
     .catch(next);
 };

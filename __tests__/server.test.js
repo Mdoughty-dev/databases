@@ -313,6 +313,75 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("GET /api/articles/:article_id/comments (pagination)", () => {
+  test("200: responds with comments and total_count", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("comments");
+        expect(Array.isArray(body.comments)).toBe(true);
+
+        expect(body).toHaveProperty("total_count");
+        expect(typeof body.total_count).toBe("number");
+        expect(Number.isInteger(body.total_count)).toBe(true);
+        expect(body.total_count).toBeGreaterThanOrEqual(body.comments.length);
+
+        expect(body.comments.length).toBeLessThanOrEqual(5);
+
+        if (body.comments.length > 0) {
+          expect(body.comments[0]).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: 1,
+            })
+          );
+        }
+
+        for (let i = 0; i < body.comments.length - 1; i++) {
+          expect(new Date(body.comments[i].created_at) >= new Date(body.comments[i + 1].created_at)).toBe(true);
+        }
+      });
+  });
+
+  test("200: p=2 returns the next page (different results to p=1) when enough comments exist", () => {
+    const limit = 2;
+
+    const page1 = request(app).get(`/api/articles/1/comments?limit=${limit}&p=1`);
+    const page2 = request(app).get(`/api/articles/1/comments?limit=${limit}&p=2`);
+
+    return Promise.all([page1, page2]).then(([res1, res2]) => {
+      expect(res1.status).toBe(200);
+      expect(res2.status).toBe(200);
+
+      const ids1 = res1.body.comments.map((c) => c.comment_id);
+      const ids2 = res2.body.comments.map((c) => c.comment_id);
+
+      if (ids1.length > 0 && ids2.length > 0) {
+        ids1.forEach((id) => expect(ids2).not.toContain(id));
+      }
+
+      expect(res1.body.total_count).toBe(res2.body.total_count);
+    });
+  });
+
+  test("400: invalid limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=0&p=1")
+      .expect(400);
+  });
+
+  test("400: invalid p", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=0")
+      .expect(400);
+  });
+});
+
 describe("GET /api/articles/:article_id (comment_count)", () => {
   test("200: responds with an article object that includes comment_count", () => {
     return request(app)
