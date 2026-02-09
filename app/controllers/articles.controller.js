@@ -3,6 +3,7 @@ const {
   getArticleById,
   patchArticleVotesById,
   addArticle,
+  removeArticleById
 } = require("../services/articles.service");
 
 const { createHttpError } = require("../utils/errors");
@@ -43,3 +44,15 @@ exports.postArticle = (req, res, next) => {
     .then((article) => res.status(201).send({ article }))
     .catch(next);
 };
+
+exports.deleteArticleById = (req, res, next) => 
+{
+	const { article_id } = req.params;
+	if (!isNaN) return next(createHttpError(400));
+	removeArticleById(article_id)
+	.then(() =>
+		{
+			res.status(204).send();
+		})
+	.catch(next);
+}

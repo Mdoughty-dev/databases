@@ -14,6 +14,10 @@ app.all(/.*/, (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  if (err.code === "22P02") {
+    err = { status: 400, msg: "Bad request" };
+  }
+
   console.error(err);
   res.status(err.status || 500).send({
     msg: err.msg || "Internal server error",

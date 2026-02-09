@@ -846,3 +846,71 @@ describe("POST /api/articles", () => {
       });
   });
 });
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: deletes an article by id and responds with no content", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+
+  test("404: valid id but article does not exist", () => {
+    return request(app)
+      .delete("/api/articles/999999")
+      .expect(404);
+  });
+
+  test("400: invalid article_id", () => {
+    return request(app)
+      .delete("/api/articles/not-an-id")
+      .expect(400);
+  });
+
+  test("204: deleting an article also deletes its respective comments (cascade)", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments.length).toBeGreaterThan(0);
+      })
+      .then(() => request(app).delete("/api/articles/1").expect(204))
+      .then(() => {
+        return request(app).get("/api/articles/1").expect(404);
+      })
+      .then(() => {
+        return request(app).get("/api/articles/1/comments").expect(404);
+      });
+  });
+});
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes a comment by id and responds with no content", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+
+  test("404: valid id but comment does not exist", () => {
+    return request(app)
+      .delete("/api/comments/999999")
+      .expect(404);
+  });
+
+  test("400: invalid comment_id", () => {
+    return request(app)
+      .delete("/api/comments/not-an-id")
+      .expect(400);
+  });
+
+  test("204 then 404: deleting the same comment twice", () => {
+    return request(app)
+      .delete("/api/comments/2")
+      .expect(204)
+      .then(() => request(app).delete("/api/comments/2").expect(404));
+  });
+});
+

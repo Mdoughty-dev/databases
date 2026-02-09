@@ -137,3 +137,32 @@ exports.insertArticle = ({ author, title, body, topic, article_img_url }) => {
     )
     .then(({ rows }) => rows[0]);
 };
+
+exports.deleteArticleByArticleId = (articleId) => {
+  return db
+    .query("BEGIN")
+    .then(() => {
+      return db.query(
+        "DELETE FROM comments WHERE article_id = $1;",
+        [articleId]
+      );
+    })
+    .then(() => {
+      return db.query(
+        "DELETE FROM articles WHERE article_id = $1 RETURNING *;",
+        [articleId]
+      );
+    })
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return db.query("ROLLBACK").then(() => {
+          return Promise.reject({ status: 404, msg: "Not found" });
+        });
+      }
+      return db.query("COMMIT");
+    })
+    .catch((err) => {
+      return db.query("ROLLBACK").then(() => Promise.reject(err));
+    });
+};
+

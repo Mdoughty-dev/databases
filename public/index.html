@@ -31,6 +31,16 @@
           The <code>GET /api</code> route serves this documentation page (static
           HTML) using <code>express.static()</code>.
         </p>
+
+        <p>
+          Updates:
+        </p>
+        <ul>
+          <li>Added pagination (<code>limit</code> and <code>p</code>) for <code>GET /api/articles</code></li>
+          <li>Added pagination (<code>limit</code> and <code>p</code>) for <code>GET /api/articles/:article_id/comments</code></li>
+          <li>Added <code>DELETE /api/articles/:article_id</code> (deletes article and its respective comments)</li>
+          <li>Documented <code>DELETE /api/comments/:comment_id</code> errors (400/404)</li>
+        </ul>
       </section>
 
       <section class="section" id="docs">
@@ -69,6 +79,15 @@
           </p>
 
           <details>
+            <summary>Queries</summary>
+            <ul>
+              <li><code>limit</code> — number of results per page</li>
+              <li><code>p</code> — page number</li>
+            </ul>
+            <pre><code>GET /api/articles?limit=10&amp;p=2</code></pre>
+          </details>
+
+          <details>
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
@@ -86,6 +105,13 @@
     }
   ]
 }</code></pre>
+          </details>
+
+          <details>
+            <summary>Errors</summary>
+            <ul>
+              <li><code>400 Bad Request</code> — invalid <code>limit</code> or <code>p</code></li>
+            </ul>
           </details>
         </article>
 
@@ -147,11 +173,11 @@
           <details>
             <summary>Request body</summary>
             <pre><code>{
-    author : "authorName"
-    title: "Article title"
-    body: "Article body"
-    topic "Topic"
-    article_img_url - "will default if not provided""
+  "author": "authorName",
+  "title": "Article title",
+  "body": "Article body",
+  "topic": "Topic",
+  "article_img_url": "will default if not provided"
 }</code></pre>
           </details>
 
@@ -160,9 +186,36 @@
             <div class="kv">
               <div><strong>Status:</strong> 201 Created</div>
               <div>
-                <strong>Body:</strong> <code>{ "comment": { ... } }</code>
+                <strong>Body:</strong> <code>{ "article": { ... } }</code>
               </div>
             </div>
+          </details>
+        </article>
+
+        <!-- ADDED -->
+        <article class="endpoint">
+          <div class="endpoint-head">
+            <span class="method del">DELETE</span>
+            <code class="path">/api/articles/:article_id</code>
+          </div>
+          <p class="desc">
+            Delete an article by ID and its respective comments.
+          </p>
+
+          <details>
+            <summary>Response</summary>
+            <div class="kv">
+              <div><strong>Status:</strong> 204 No Content</div>
+              <div><strong>Body:</strong> none</div>
+            </div>
+          </details>
+
+          <details>
+            <summary>Errors</summary>
+            <ul>
+              <li><code>400 Bad Request</code> — invalid <code>article_id</code></li>
+              <li><code>404 Not Found</code> — valid id but article does not exist</li>
+            </ul>
           </details>
         </article>
       </section>
@@ -177,14 +230,46 @@
           </div>
           <p class="desc">Fetch all comments for a given article.</p>
 
+          <!-- UPDATED -->
+          <details>
+            <summary>Queries</summary>
+            <ul>
+              <li><code>limit</code> — number of results per page</li>
+              <li><code>p</code> — page number</li>
+            </ul>
+            <pre><code>GET /api/articles/1/comments?limit=5&amp;p=2</code></pre>
+          </details>
+
           <details>
             <summary>Response</summary>
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
               <div>
-                <strong>Body:</strong> <code>{ "comments": [ ... ] }</code>
+                <strong>Body:</strong>
+                <code>{ "comments": [ ... ], "total_count": 0 }</code>
               </div>
             </div>
+            <pre><code>{
+  "comments": [
+    {
+      "comment_id": 1,
+      "votes": 16,
+      "created_at": "2020-11-26T21:42:00.000Z",
+      "author": "butter_bridge",
+      "body": "Nice article!",
+      "article_id": 1
+    }
+  ],
+  "total_count": 11
+}</code></pre>
+          </details>
+
+          <details>
+            <summary>Errors</summary>
+            <ul>
+              <li><code>400 Bad Request</code> — invalid <code>article_id</code> / <code>limit</code> / <code>p</code></li>
+              <li><code>404 Not Found</code> — article does not exist</li>
+            </ul>
           </details>
         </article>
 
@@ -250,7 +335,7 @@
             <div class="kv">
               <div><strong>Status:</strong> 200 OK</div>
               <div>
-                <strong>Body:</strong> <code>{ "article": { ... } }</code>
+                <strong>Body:</strong> <code>{ "comment": { ... } }</code>
               </div>
             </div>
           </details>
@@ -269,6 +354,15 @@
               <div><strong>Status:</strong> 204 No Content</div>
               <div><strong>Body:</strong> none</div>
             </div>
+          </details>
+
+          <!-- ADDED to match your tests -->
+          <details>
+            <summary>Errors</summary>
+            <ul>
+              <li><code>400 Bad Request</code> — invalid <code>comment_id</code></li>
+              <li><code>404 Not Found</code> — valid id but comment does not exist</li>
+            </ul>
           </details>
         </article>
       </section>
@@ -338,3 +432,4 @@
     </main>
   </body>
 </html>
+

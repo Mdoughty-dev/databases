@@ -5,6 +5,7 @@ const {
   insertArticle,
   userExists,
   topicExists,
+  deleteArticleByArticleId
 } = require("../models/articles.model");
 
 const { createHttpError } = require("../utils/errors");
@@ -79,4 +80,14 @@ exports.addArticle = (newArticle = {}) => {
       return insertArticle({ author, title, body, topic, article_img_url });
     },
   );
+};
+
+exports.removeArticleById = (articleId) =>
+{
+	return deleteArticleByArticleId(articleId).then((deleted) =>
+		{
+			if (!deleted)
+				return Promise.reject(createHttpError(404));
+			return ;
+		})
 };
