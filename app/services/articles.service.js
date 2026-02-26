@@ -15,6 +15,7 @@ const validSortBys = new Set([
   "votes",
   "author",
   "title",
+  "comment_count",
   "article_id",
   "topic",
   "article_img_url",
