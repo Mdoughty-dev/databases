@@ -1,3 +1,4 @@
+
 const db = require("../../db/connection");
 
 exports.selectArticles = (
@@ -5,8 +6,24 @@ exports.selectArticles = (
   order = "desc",
   topic,
   limit = 10,
-  p = 1,
+  p = 1
 ) => {
+  const validSortBys = [
+    "created_at",
+    "votes",
+    "comment_count",
+    "topic",
+    "author",
+    "title",
+    "article_id",
+  ];
+  const validOrders = ["asc", "desc"];
+
+  if (!validSortBys.includes(sort_by)) sort_by = "created_at";
+  if (!validOrders.includes(order)) order = "desc";
+
+  limit = Number(limit);
+  p = Number(p);
   const offset = limit * (p - 1);
 
   const countValues = [];
@@ -14,8 +31,18 @@ exports.selectArticles = (
 
   const dataValues = [];
   let dataSql = `
-    SELECT author, title, body, article_id, topic, created_at, votes, article_img_url
+    SELECT
+      articles.author,
+      articles.title,
+      articles.article_id,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      COUNT(comments.comment_id)::int AS comment_count
     FROM articles
+    LEFT JOIN comments
+      ON comments.article_id = articles.article_id
   `;
 
   if (topic) {
@@ -23,10 +50,13 @@ exports.selectArticles = (
     countSql += ` WHERE topic = $1`;
 
     dataValues.push(topic);
-    dataSql += ` WHERE topic = $1`;
+    dataSql += ` WHERE articles.topic = $1`;
   }
 
-  dataSql += ` ORDER BY ${sort_by} ${order}, article_id ${order}`;
+  dataSql += `
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order}, articles.article_id ${order}
+  `;
 
   if (topic) {
     dataValues.push(limit, offset);
